@@ -1,0 +1,5 @@
+node vlp_master.js /media/dml/wd1t/work/logs/ 1
+node vlp_master.js ~/Desktop/data/ 1
+
+node vlp_master.js /media/dml/wd1t/work/logs/ 4
+node vlp_master.js ~/Desktop/data/ 4
