@@ -3,3 +3,14 @@ node vlp_master.js ~/Desktop/data/ 1
 
 node vlp_master.js /media/dml/wd1t/work/logs/ 4
 node vlp_master.js ~/Desktop/data/ 4
+
+node vlp_master.js /media/wd1t/work/logs/ 1
+
+
+
+git clone https://github.com/dmlesc/deituh.git
+
+curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
+lxc copy base es1 --container-only -c security.nesting=true

@@ -4,15 +4,15 @@ const log = require('./log')
 
 const data_path = process.argv[2]
 const workers_total = process.argv[3]
+const es_host = process.argv[4]
 const canifork_interval = 5000
 
 const { fork } = require('child_process')
 const fs = require('fs')
 const elasticsearch = require('elasticsearch');
 
-const elasticsearch_host = '10.92.124.68:9200'
 const elastic = new elasticsearch.Client({
-  host: elasticsearch_host
+  host: es_host
   //, log: 'trace'
 });
 
