@@ -4,7 +4,9 @@ node vlp_master.js ~/Desktop/data/ 1
 node vlp_master.js /media/dml/wd1t/work/logs/ 4
 node vlp_master.js ~/Desktop/data/ 4
 
-node vlp_master.js /media/wd1t/work/logs/ 1
+node vlp_master.js /media/wd1t/work/logs/ 1 es2:9200
+node vlp_master.js /media/wd1t/work/logs/ 4 es2:9200
+node vlp_master.js /media/wd1t/work/logs/ 6 es2:9200
 
 
 
@@ -14,3 +16,8 @@ curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
 sudo apt-get install -y nodejs
 
 lxc copy base es1 --container-only -c security.nesting=true
+lxc copy base es2 --container-only -c security.nesting=true
+
+
+http://es2:9200/_cat/indices
+curl es2:9200/_cat/indices

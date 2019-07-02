@@ -1,20 +1,20 @@
-'use strict';
+'use strict'
 
-const conf = require('../conf/env-local');
+const es_host = process.argv[2]
 
-const elasticsearch = require('elasticsearch');
+const elasticsearch = require('elasticsearch')
 const elastic = new elasticsearch.Client({
-  host: conf.elasticsearch_host
+  host: es_host
   //, log: 'trace'
-});
+})
 
 var params = {
-  name: 'ocsp_edge-all',
+  name: 'vlp-all',
   //timeout: '10m',
   body: {
-    template: 'ocsp_edge-all-*',
+    template: 'vlp-all-*',
     settings: {
-      number_of_shards: 1,
+      number_of_shards: 8,
       number_of_replicas: 0    },
     mappings: {
       doc: {
@@ -38,16 +38,16 @@ var params = {
       }
     }
   }
-};
+}
 
 
 elastic.indices.putTemplate(params, (err, res) => {
   if (err)
-    console.log(err);
+    console.log(err)
   else
-    console.log(res);
-});
+    console.log(res)
+})
 
 process.on('uncaughtException', (err) => {
-  console.log(err);
-});
+  console.log(err)
+})
