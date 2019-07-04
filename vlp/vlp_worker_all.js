@@ -4,13 +4,13 @@ const log = require('./log')
 
 const file = process.argv[2]
 const { spawn } = require('child_process')
+const howmany = 10000
 
 var first = ''
 var last = ''
 var zero = ''
 var logs = []
 
-const howmany = 4000
 
 function init() {
   //log('worker_init')

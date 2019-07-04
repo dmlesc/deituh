@@ -6,6 +6,7 @@ const data_path = process.argv[2]
 const workers_total = process.argv[3]
 const es_host = process.argv[4]
 const es_index = process.argv[5]
+const howmany = process.argv[6]
 const forking_interval = 5000
 const flushing_interval = 5000
 
@@ -21,7 +22,6 @@ const elastic = new elasticsearch.Client({
 var action = {}
 action.index = { _index: es_index }
 action = JSON.stringify(action)
-const howmany = 8000
 var bulk_queue = []
 var loading = false
 
