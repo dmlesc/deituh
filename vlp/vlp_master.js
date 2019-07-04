@@ -5,28 +5,33 @@ const log = require('./log')
 const data_path = process.argv[2]
 const workers_total = process.argv[3]
 const es_host = process.argv[4]
-const canifork_interval = 5000
+const es_index = process.argv[5]
+const forking_interval = 5000
+const flushing_interval = 5000
 
 const { fork } = require('child_process')
 const fs = require('fs')
-const elasticsearch = require('elasticsearch');
+const elasticsearch = require('elasticsearch')
 
 const elastic = new elasticsearch.Client({
   host: es_host
   //, log: 'trace'
-});
+})
 
-const index = 'vlp'
-var action = {};
-action.index = { _index: index, _type: 'doc'};
-const howmany = 1000
-var bulk = []
+var action = {}
+action.index = { _index: es_index }
+action = JSON.stringify(action)
+const howmany = 8000
+var bulk_queue = []
+var loading = false
+
 
 
 const undone_path = data_path + 'undone/'
 const done_path = data_path + 'done/'
 
-var interval
+var forking
+var flushing
 var workers_active = 0
 var undone_files
 
@@ -34,7 +39,8 @@ var undone_files
 function init () {
   undone_files = fs.readdirSync(undone_path)
   log('undone_files', undone_files)
-  interval = setInterval(canifork, canifork_interval)
+  forking = setInterval(canifork, forking_interval)
+  flushing = setInterval(caniflush, flushing_interval)
 }
 
 function canifork() {
@@ -44,8 +50,15 @@ function canifork() {
     }
   }
   else {
-    clearInterval(interval)
+    clearInterval(forking)
   } 
+}
+
+function caniflush() {
+  if (!loading && bulk_queue.length) {
+    loading = true
+    elastic_bulk(bulk_queue.splice(0, howmany))
+  }
 }
 
 function fork_worker (file) {
@@ -55,10 +68,10 @@ function fork_worker (file) {
 
   var undone_file = undone_path + file
    
-  const worker = fork('vlp_worker.js', [undone_file])
+  const worker = fork('vlp_worker_all.js', [undone_file])
 
-  worker.on('message', (msg) => { //log('msg', msg)
-    parse_msg(msg)
+  worker.on('message', (msg) => {
+    process_msg(msg)
   })
   
   worker.on('close', (code) => { //log('worker_exit_code', code)
@@ -71,12 +84,13 @@ function fork_worker (file) {
     log('workers_active', workers_active)
 
     if (!undone_files.length && workers_active == 0) {
-      elastic_bulk(bulk);
+      caniflush()
+      clearInterval(flushing)
     }
   })
 }
 
-function parse_msg (msg) {
+function process_msg (msg) {
   if (msg.type == 'aggs') {
     var aggs = msg.data
 
@@ -90,7 +104,7 @@ function parse_msg (msg) {
 
     for (var i=0; i<logs.length; i++) {
       var doc = logs[i]
-      load(log)
+      load(doc)
     }
   }
   else {
@@ -101,21 +115,34 @@ function parse_msg (msg) {
 function load (doc) {
   // console.log('doc:', doc)
 
-  bulk.push(action)
-  bulk.push(doc)
-
-  if (bulk.length >= howmany) {
-    elastic_bulk(bulk.splice(0, howmany))
-  }
+  bulk_queue.push(action)
+  bulk_queue.push(JSON.stringify(doc))
 }
 
 function elastic_bulk (docs) {
-  elastic.bulk({ body: docs }, (err, res) => {
+  var params = {
+    index: es_index, 
+    body: docs.join('\n')
+  }
+
+  elastic.bulk(params, (err, res) => {
     if (err) {
       log('elastic.bulk error:', err.stack)
     }
-    else { //log('es', res); console.log(res.items[0].index)
-      log('inserted', bulk.length/2)
+    else {
+      if (res.errors) {
+        log('res', res)
+        log('items[0]', res.items[0].index)
+      }
+
+      log('inserted', docs.length/2)
+
+      if (bulk_queue.length) {
+        elastic_bulk(bulk_queue.splice(0, howmany))
+      }
+      else {
+        loading = false
+      }
     }
   })
 }

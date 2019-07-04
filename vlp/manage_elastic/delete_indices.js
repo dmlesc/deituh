@@ -9,7 +9,7 @@ const elastic = new elasticsearch.Client({
 })
 
 //var indices = ['*-2016-12-*']
-var indices = ['vlp']
+var indices = ['vlp-all-*']
 
 elastic.indices.delete({ index: indices }, (err, res) => {
   if (err)

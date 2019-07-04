@@ -9,6 +9,8 @@ node vlp_master.js /media/wd1t/work/logs/ 4 es2:9200
 node vlp_master.js /media/wd1t/work/logs/ 6 es2:9200
 
 
+node vlp_master.js /media/dml/wd1t/work/logs/ 1 es2:9200 vlp-all-0
+
 
 git clone https://github.com/dmlesc/deituh.git
 
@@ -21,3 +23,14 @@ lxc copy base es2 --container-only -c security.nesting=true
 
 http://es2:9200/_cat/indices
 curl es2:9200/_cat/indices
+
+
+node manage_elastic/delete_indices.js es2:9200
+node manage_elastic/create_template_vlp-all.js es2:9200
+
+
+curl -X DELETE "es2:9200/_template/vlp-all"
+
+_source: {
+  enabled: false,
+},
