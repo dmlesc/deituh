@@ -3,67 +3,22 @@ process.on('uncaught', (err) => { console.log('\nuncaught:\n', err.stack) })
 const log = require('./log')
 
 const file = process.argv[2]
-const es_host = process.argv[3]
-const es_index = process.argv[4]
-
-const caniload_interval = 5000
-
-const fs = require('fs')
-const zlib = require('zlib');
-const readline = require('readline');
-const elasticsearch = require('elasticsearch')
-
-const elastic = new elasticsearch.Client({
-  host: es_host
-  //, log: 'trace'
-})
-
 const { spawn } = require('child_process')
 const howmany = 10000
-
-var action = { index: { _index: es_index } }
-action = JSON.stringify(action)
-var bulk_queue = []
-var loading = false
-var caniload_set
 
 var first = ''
 var last = ''
 var zero = ''
 var logs = []
 
-var inserted = 0
 
 function init() {
-  caniload_set = setInterval(caniload, caniload_interval)
+  //log('worker_init')
+
   extract(file)
 }
 
-function caniload() {
-  if (!loading && bulk_queue.length) {
-    loading = true
-    load(bulk_queue.splice(0, howmany))
-    load(bulk_queue.splice(0, howmany))
-    load(bulk_queue.splice(0, howmany))
-  }
-}
-
 function extract (file) {
-  const rl = readline.createInterface( {
-    input: fs.createReadStream(file).pipe(zlib.createGunzip()) 
-  })
-  rl.on('line', (line) => { 
-    transform(line)
-  })
-  rl.on('close', () => {
-    log('close', file)
-
-    caniload()
-    clearInterval(caniload_set)
-  })
-}
-
-function extract_pigz (file) {
   var cmd = 'pigz -dc ' + file
   
   const child = spawn('sh', ['-c', cmd])
@@ -146,7 +101,7 @@ function transform (line) {
   message.filesize = filesize
   message.sc_status = sc_status
   message.sc_bytes = sc_bytes
-  message.rs_duration = rs_duration_
+  message.rs_duration = rs_duration
   message.rs_bytes = rs_bytes
   message.c_referrer = c_referrer
   */
@@ -164,47 +119,20 @@ function transform (line) {
   var timestamp = d.toJSON()
   message.timestamp = timestamp
 
-  // log(message)
+  //log(message)
   
-  bulk_queue.push(JSON.stringify(message))
+  logs.push(message)
+
+  if (logs.length == howmany) {
+    // log('send', logs.length)
+
+    process.send({
+      type:'logs',
+      data: logs.splice(0, howmany)
+    })
+
+  }
 }
 
-function load (docs) {
-  var body = []
-
-  for (var i=0; i<docs.length; i++) {
-    body.push(action)
-    body.push(docs[i])
-  }
-
-  var params = {
-    index: es_index, 
-    body: body.join('\n')
-  }
-
-  elastic.bulk(params, (err, res) => {
-    if (err) {
-      log('elastic.bulk error:', err.stack)
-    }
-    else {
-      if (res.errors) {
-        log('res', res)
-        log('items[0]', res.items[0].index)
-      }
-
-      inserted+=docs.length
-
-      log('inserted', inserted)
-      log('bulk_queue', bulk_queue.length)
-
-      if (bulk_queue.length) {
-        load(bulk_queue.splice(0, howmany))
-      }
-      else {
-        loading = false
-      }
-    }
-  })
-}
 
 init()

@@ -169,6 +169,13 @@ function transform (line) {
   bulk_queue.push(JSON.stringify(message))
 }
 
+function load_off (doc) {
+  // console.log('doc:', doc)
+
+  bulk_queue.push(action)
+  bulk_queue.push(JSON.stringify(doc))
+}
+
 function load (docs) {
   var body = []
 

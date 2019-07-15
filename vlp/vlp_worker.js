@@ -58,15 +58,21 @@ function extract (file) {
     //   data: logs
     // })
 
-    finish_aggs('overall', aggregations.overall)
+    // finish_aggs('overall', aggregations.overall)
 
-    // var key
-    // for (key in aggregations) {
-    //   var type
-    //   for (type in aggregations[key]) {
-    //     finish_aggs(type, aggregations[key][type].aggs)
-    //   }
-    // }
+    var key
+    for (key in aggregations) {
+      if (key == 'user_agent') {
+        var type
+        for (type in aggregations[key]) {
+          finish_aggs(type, aggregations[key][type].aggs)
+        }
+      }
+      else {
+        finish_aggs(key, aggregations[key])
+      }
+    }
+
   })
 }
 
@@ -167,10 +173,15 @@ function transform (line) {
 
   calc_aggs(aggregations.overall, minute, sc_bytes, http_status)
 
-  // var aggs = match_aggs(c_user_agent, 'user_agent')
-  // if (aggs) {
-  //   calc_aggs(aggs, minute, sc_bytes, http_status)
-  // }
+  if (!aggregations[cname]) {
+    aggregations[cname] = {}
+  }
+  calc_aggs(aggregations[cname], minute, sc_bytes, http_status)
+
+  var aggs = match_aggs(c_user_agent, 'user_agent')
+  if (aggs) {
+    calc_aggs(aggs, minute, sc_bytes, http_status)
+  }
 
   // var aggs = match_aggs(cname, 'cname')
   // if (aggs) {

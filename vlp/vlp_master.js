@@ -6,7 +6,7 @@ const data_path = process.argv[2]
 const workers_total = process.argv[3]
 const es_host = process.argv[4]
 const es_index = process.argv[5]
-const howmany = process.argv[6]
+const howmany = 2000
 const forking_interval = 5000
 const flushing_interval = 5000
 
@@ -68,7 +68,7 @@ function fork_worker (file) {
 
   var undone_file = undone_path + file
    
-  const worker = fork('vlp_worker_all.js', [undone_file])
+  const worker = fork('vlp_worker.js', [undone_file])
 
   worker.on('message', (msg) => {
     process_msg(msg)
