@@ -51,11 +51,6 @@ function extract (file) {
   })
   child.stderr.on('data', (data) => { log('stderr', data.toString('utf8')) })
   child.on('close', (code) => {
-    process.send({
-      type:'logs',
-      data: logs
-    })
-
     var key
     for (key in aggregations) {
       if (key == 'user_agent') {
@@ -94,15 +89,14 @@ function transform (line) {
 
   var time = line[0]
   var sc_status = line[6]
-
-  var sc_status_split = sc_status.split('/')
-  var cache_status = sc_status_split[0]
-  var http_status = sc_status_split[1]
   var bytes = line[7]
   var cs_uri_stem = line[9]
+
+  var sc_status_split = sc_status.split('/')
+  var http_status = sc_status_split[1]
+
   var cs_uri_stem_split = cs_uri_stem.split('/')
   var cname = cs_uri_stem_split[2]
-
 
   if (bytes == '-') {
     bytes = 0
@@ -126,36 +120,6 @@ function transform (line) {
   var aggs = match_aggs(user_agent, 'user_agent')
   if (aggs) {
     calc_aggs(aggs, minute, bytes, http_status)
-  }
-
-  if (http_status.startsWith('5')) {
-    var c_ip = line[2]
-    var s_ip = line[4]
-    var method = line[8]
-    var path = '-'
-    if (cs_uri_stem_split.slice(3)) {
-      path = cs_uri_stem_split.slice(3).join('/')
-    }
-
-    var message = {}
-
-    message.time = time
-    message.c_ip = c_ip
-    message.s_ip = s_ip
-    message.method = method
-    message.user_agent = user_agent
-    message.cache_status = cache_status
-    message.http_status = http_status
-    message.cname = cname
-    message.path = path
-
-    var d = new Date(time * 1000)
-    var timestamp = d.toJSON()
-    message.timestamp = timestamp
-
-    //log(message)
-    
-    logs.push(message)
   }
 }
 

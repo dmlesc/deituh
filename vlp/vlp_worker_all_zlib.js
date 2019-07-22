@@ -18,7 +18,6 @@ const elastic = new elasticsearch.Client({
   //, log: 'trace'
 })
 
-const { spawn } = require('child_process')
 const howmany = 10000
 
 var action = { index: { _index: es_index } }
@@ -26,11 +25,6 @@ action = JSON.stringify(action)
 var bulk_queue = []
 var loading = false
 var caniload_set
-
-var first = ''
-var last = ''
-var zero = ''
-var logs = []
 
 var inserted = 0
 
@@ -44,7 +38,7 @@ function caniload() {
     loading = true
     load(bulk_queue.splice(0, howmany))
     load(bulk_queue.splice(0, howmany))
-    load(bulk_queue.splice(0, howmany))
+    // load(bulk_queue.splice(0, howmany))
   }
 }
 
@@ -63,106 +57,48 @@ function extract (file) {
   })
 }
 
-function extract_pigz (file) {
-  var cmd = 'pigz -dc ' + file
-  
-  const child = spawn('sh', ['-c', cmd])
-  child.stdout.on('data', (data) => {
-    assemble_chunk(data.toString('utf8'))
-  })
-  child.stderr.on('data', (data) => { log('stderr', data.toString('utf8')) })
-  child.on('close', (code) => { //log('pigz_exit_code', code)
-    process.send({
-      type:'logs',
-      data: logs
-    })
-  })
-}
-
-function assemble_chunk (chunk) {
-  var lines = chunk.split('\n')
-
-  first = lines[0]
-  zero = last + first
-  last = lines[lines.length - 1]
-
-  lines[0] = zero
-
-  for (var i=0; i<lines.length - 1; i++) {
-    var line = lines[i]
-    
-    if (!line.startsWith('#Fields:')) {
-      transform(line)
-    }
-  }
-}
-
 function transform (line) {
   var line = line.split(' ')
 
   var time = line[0]
+  var c_ip = line[2]
   var sc_status = line[6]
+  var bytes = line[7]
+  var method = line[8]
+  var cs_uri_stem = line[9]
+  var user_agent = line.slice(14, line.length - 3).join(' ').replace(/"/g, '')
+
+  var d = new Date(time * 1000)
+  var timestamp = d.toJSON()
 
   var sc_status_split = sc_status.split('/')
-  var cache_status = sc_status_split[0]
   var http_status = sc_status_split[1]
-  var sc_bytes = line[7]
-  var cs_uri_stem = line[9]
+
+  if (bytes == '-') {
+    bytes = 0
+  }
+  else {
+    bytes = Number(bytes)
+  }
+
   var cs_uri_stem_split = cs_uri_stem.split('/')
   var cname = cs_uri_stem_split[2]
 
-
-  if (sc_bytes == '-') {
-    sc_bytes = 0
-  }
-  else {
-    sc_bytes = Number(sc_bytes)
-  }
-
-  var c_user_agent = line.slice(14, line.length - 3).join(' ').replace(/"/g, '')
-  
-  /*
-  var time_taken = line[1]
-  var filesize = line[3]
-  var s_port = line[5]
-  var rs_duration = line[11]
-  var rs_bytes = line[12]
-  var c_referrer = line[13]
-  */
-
-  var c_ip = line[2]
-  var s_ip = line[4]
-  var cs_method = line[8]
-  var uri_path = '-'
+  var path = '-'
   if (cs_uri_stem_split.slice(3)) {
-    uri_path = cs_uri_stem_split.slice(3).join('/')
+    path = cs_uri_stem_split.slice(4).join('/')
   }
 
   var message = {}
 
-  /*
-  message.cs_uri_stem = cs_uri_stem
-  message.time_taken = time_taken
-  message.filesize = filesize
-  message.sc_status = sc_status
-  message.sc_bytes = sc_bytes
-  message.rs_duration = rs_duration_
-  message.rs_bytes = rs_bytes
-  message.c_referrer = c_referrer
-  */
-
-  message.c_ip = c_ip
-  message.s_ip = s_ip
-  message.cs_method = cs_method
-  message.c_user_agent = c_user_agent
-  message.cache_status = cache_status
-  message.http_status = http_status
-  message.cname = cname
-  message.uri_path = uri_path
-
-  var d = new Date(time * 1000)
-  var timestamp = d.toJSON()
   message.timestamp = timestamp
+  message.bytes = bytes
+  message.c_ip = c_ip
+  message.cname = cname
+  message.http_status = http_status
+  message.method = method
+  message.path = path
+  message.user_agent = user_agent
 
   // log(message)
   

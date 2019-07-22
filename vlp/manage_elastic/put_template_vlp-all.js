@@ -10,10 +10,9 @@ const elastic = new elasticsearch.Client({
 })
 
 var params = {
-  name: 'vlp-aggs',
-  //timeout: '10m',
+  name: 'vlp-all',
   body: {
-    index_patterns: ['vlp-aggs-*'],
+    index_patterns: ['vlp-all-*'],
     settings: {
       number_of_shards: 8,
       number_of_replicas: 0
@@ -24,23 +23,23 @@ var params = {
       },
       properties: {
         timestamp: { type: 'date', format: 'strict_date_optional_time' },
-        aggs_type: { type : 'keyword' },
-        '2xx': { type : 'integer' },
-        '3xx': { type : 'integer' },
-        '4xx': { type : 'integer' },
-        '5xx': { type : 'integer' },
-        total: { type: 'integer' },
-        err_rate: { type: 'integer' },
-        bytes_sent: { type: 'float' }
+        bytes: { type : 'integer' },
+        c_ip: { type : 'keyword' },
+        cname: { type : 'keyword' },
+        http_status: { type : 'keyword' },
+        method: { type: 'keyword' },
+        path: { type : 'text' },
+        user_agent: { type: 'text' }
       }
     }
   }
 }
 
 elastic.indices.putTemplate(params, (err, res) => {
-  if (err)
+  if (err) {
     console.log(err)
-  else
+  }
+  else {
     console.log(res)
+  }
 })
-

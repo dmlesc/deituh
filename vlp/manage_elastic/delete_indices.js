@@ -1,4 +1,5 @@
 'use strict'
+process.on('uncaughtException', (err) => { console.log(err) })
 
 const es_host = process.argv[2]
 
@@ -8,12 +9,12 @@ const elastic = new elasticsearch.Client({
   //, log: 'trace'
 })
 
-//var indices = ['*-2016-12-*']
 var indices = ['vlp*']
 
 elastic.indices.delete({ index: indices }, (err, res) => {
-  if (err)
+  if (err) {
     console.log(err)
+  }
   else {
     console.log(res)
   }

@@ -26,9 +26,10 @@ var bulk_queue = []
 var loading = false
 
 
-
 const undone_path = data_path + 'undone/'
 const done_path = data_path + 'done/'
+// const worker_path = 'vlp_worker.js'
+const worker_path = 'vlp_worker_aggs_pigz.js'
 
 var forking
 var flushing
@@ -68,7 +69,7 @@ function fork_worker (file) {
 
   var undone_file = undone_path + file
    
-  const worker = fork('vlp_worker.js', [undone_file])
+  const worker = fork(worker_path, [undone_file])
 
   worker.on('message', (msg) => {
     process_msg(msg)

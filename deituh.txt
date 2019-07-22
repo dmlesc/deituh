@@ -1,41 +1,26 @@
-node vlp_master.js /media/dml/wd1t/work/logs/ 1
-
-
-node vlp_master.js /media/wd1t/work/logs/ 1 es2:9200
-node vlp_master.js /media/wd1t/work/logs/ 4 es2:9200
-node vlp_master.js /media/wd1t/work/logs/ 6 es2:9200
-
-
-node vlp_master.js /media/dml/wd1t/work/logs/ 1 es2:9200 vlp-all-0
-
-node vlp_master.js /media/wd1t/work/logs/ 3 es2:9200 vlp-all-0
+/media/dml/wd1t/work/logs/
+~/Desktop/logs/
 
 
 git clone https://github.com/dmlesc/deituh.git
 
 curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
-sudo apt-get install -y nodejs
+apt install -y nodejs
+apt install pigz
 
-lxc copy base es1 --container-only -c security.nesting=true
-lxc copy base es2 --container-only -c security.nesting=true
+mkdir -p /data/es-data
+chown 1000:1000 /data/es-data
 
-
-http://es1:9200/_cat/indices?v
-curl es2:9200/_cat/indices
-
-
-node manage_elastic/delete_indices.js es2:9200
-node manage_elastic/create_template_vlp-all.js es2:9200
+http://esc2:9200/_cat/indices?v
+curl esc2:9200/_cat/indices?v
 
 
-node vlp_worker_all.js /media/dml/wd1t/work/logs/undone/wac_2BE4_20181126_0031.log.gz es2:9200 vlp-all-0
-
-node vlp_worker_all.js ~/Desktop/data/undone/wac_2BE4_20181127_0001.log.gz es:9200 vlp-all-0
-
-
-
-curl -X DELETE "es2:9200/_template/vlp-all"
+node manage_elastic/delete_indices.js esc2:9200
+node manage_elastic/put_template_vlp-all.js esc2:9200
+node manage_elastic/put_template_vlp-aggs.js esc2:9200
 
 
+node vlp_worker_all_zlib.js ~/Desktop/logs/undone/wac_2BE4_20181127_0001.log.gz esc:9200 vlp-all-0
 
-node vlp_master.js ~/Desktop/data/ 1 es:9200 vlp-aggs-0
+
+node vlp_master.js ~/Desktop/logs/ 1 esc2:9200 vlp-aggs-0
