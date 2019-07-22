@@ -20,7 +20,7 @@ node manage_elastic/put_template_vlp-all.js esc2:9200
 node manage_elastic/put_template_vlp-aggs.js esc2:9200
 
 
-node vlp_worker_all_zlib.js ~/Desktop/logs/undone/wac_2BE4_20181127_0001.log.gz esc:9200 vlp-all-0
+node vlp_worker_all_zlib.js ~/Desktop/logs/undone/wac_2BE4_20181127_0001.log.gz esc2:9200 vlp-all-0
 
 
 node vlp_master.js ~/Desktop/logs/ 1 esc2:9200 vlp-aggs-0
