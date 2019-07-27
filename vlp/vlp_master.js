@@ -4,8 +4,9 @@ const log = require('./log')
 
 const data_path = process.argv[2]
 const workers_total = process.argv[3]
-const es_host = process.argv[4]
-const es_index = process.argv[5]
+const decompress_method = process.argv[4]
+const es_host = process.argv[5]
+const es_index = process.argv[6]
 const howmany = 2000
 const forking_interval = 5000
 const flushing_interval = 5000
@@ -28,8 +29,7 @@ var loading = false
 
 const undone_path = data_path + 'undone/'
 const done_path = data_path + 'done/'
-// const worker_path = 'vlp_worker.js'
-const worker_path = 'vlp_worker_aggs_pigz.js'
+const worker_path = 'vlp_worker_aggs.js'
 
 var forking
 var flushing
@@ -69,7 +69,7 @@ function fork_worker (file) {
 
   var undone_file = undone_path + file
    
-  const worker = fork(worker_path, [undone_file])
+  const worker = fork(worker_path, [undone_file, decompress_method])
 
   worker.on('message', (msg) => {
     process_msg(msg)

@@ -3,13 +3,17 @@ process.on('uncaught', (err) => { console.log('\nuncaught:\n', err.stack) })
 const log = require('./log')
 
 const file = process.argv[2]
-const { spawn } = require('child_process')
+const decompress_method = process.argv[3]
 const aggs_conf = require('./aggs_conf')
+const { spawn } = require('child_process')
+const fs = require('fs')
+const zlib = require('zlib');
+const readline = require('readline');
+
 
 var first = ''
 var last = ''
 var zero = ''
-var logs = []
 
 var aggregations = {
   overall: {}
@@ -37,12 +41,15 @@ for (key in aggs_conf) {
   }
 }
 
+var extract
+decompress_method == 'pigz' ? extract = extract_pigz : extract = extract_zlib
+
 
 function init() {
   extract(file)
 }
 
-function extract (file) {
+function extract_pigz (file) {
   var cmd = 'pigz -dc ' + file
   
   const child = spawn('sh', ['-c', cmd])
@@ -84,6 +91,31 @@ function assemble_chunk (chunk) {
   }
 }
 
+function extract_zlib (file) {
+  const rl = readline.createInterface( {
+    input: fs.createReadStream(file).pipe(zlib.createGunzip()) 
+  })
+  rl.on('line', (line) => { 
+    if (!line.startsWith('#Fields:')) {
+      transform(line)
+    }
+  })
+  rl.on('close', () => {
+    var key
+    for (key in aggregations) {
+      if (key == 'user_agent') {
+        var type
+        for (type in aggregations[key]) {
+          finish_aggs(type, aggregations[key][type].aggs)
+        }
+      }
+      else {
+        finish_aggs(key, aggregations[key])
+      }
+    }
+  })
+}
+
 function transform (line) {
   var line = line.split(' ')
 
@@ -98,12 +130,7 @@ function transform (line) {
   var cs_uri_stem_split = cs_uri_stem.split('/')
   var cname = cs_uri_stem_split[2]
 
-  if (bytes == '-') {
-    bytes = 0
-  }
-  else {
-    bytes = Number(bytes)
-  }
+  bytes == '-' ? bytes = 0 : bytes = Number(bytes)
 
   var user_agent = line.slice(14, line.length - 3).join(' ').replace(/"/g, '')
   

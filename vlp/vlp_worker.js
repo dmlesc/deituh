@@ -134,7 +134,7 @@ function transform (line) {
     var method = line[8]
     var path = '-'
     if (cs_uri_stem_split.slice(3)) {
-      path = cs_uri_stem_split.slice(3).join('/')
+      path = cs_uri_stem_split.slice(4).join('/')
     }
 
     var message = {}

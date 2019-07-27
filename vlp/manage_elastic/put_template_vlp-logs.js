@@ -10,9 +10,9 @@ const elastic = new elasticsearch.Client({
 })
 
 var params = {
-  name: 'vlp-all',
+  name: 'vlp-logs',
   body: {
-    index_patterns: ['vlp-all-*'],
+    index_patterns: ['vlp-logs-*'],
     settings: {
       number_of_shards: 8,
       number_of_replicas: 0
