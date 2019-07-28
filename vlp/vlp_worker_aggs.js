@@ -4,7 +4,7 @@ const log = require('./log')
 
 const file = process.argv[2]
 const decompress_method = process.argv[3]
-const aggs_conf = require('./aggs_conf')
+const aggs_field = process.argv[4]
 const { spawn } = require('child_process')
 const fs = require('fs')
 const zlib = require('zlib');
@@ -27,20 +27,6 @@ var aggs_skel = {
   bytes_sent: 0
 }
 
-var key
-for (key in aggs_conf) {
-  var value = aggs_conf[key]
-  aggregations[key] = {}
-
-  var type
-  for (type in value) {
-    aggregations[key][type] = {
-      match: value[type],
-      aggs: {}
-    }
-  }
-}
-
 var extract
 decompress_method == 'pigz' ? extract = extract_pigz : extract = extract_zlib
 
@@ -58,18 +44,7 @@ function extract_pigz (file) {
   })
   child.stderr.on('data', (data) => { log('stderr', data.toString('utf8')) })
   child.on('close', (code) => {
-    var key
-    for (key in aggregations) {
-      if (key == 'user_agent') {
-        var type
-        for (type in aggregations[key]) {
-          finish_aggs(type, aggregations[key][type].aggs)
-        }
-      }
-      else {
-        finish_aggs(key, aggregations[key])
-      }
-    }
+    worker_on_close()
   })
 }
 
@@ -101,18 +76,7 @@ function extract_zlib (file) {
     }
   })
   rl.on('close', () => {
-    var key
-    for (key in aggregations) {
-      if (key == 'user_agent') {
-        var type
-        for (type in aggregations[key]) {
-          finish_aggs(type, aggregations[key][type].aggs)
-        }
-      }
-      else {
-        finish_aggs(key, aggregations[key])
-      }
-    }
+    worker_on_close()
   })
 }
 
@@ -127,30 +91,41 @@ function transform (line) {
   var sc_status_split = sc_status.split('/')
   var http_status = sc_status_split[1]
 
-  var cs_uri_stem_split = cs_uri_stem.split('/')
-  var cname = cs_uri_stem_split[2]
-
   bytes == '-' ? bytes = 0 : bytes = Number(bytes)
 
-  var user_agent = line.slice(14, line.length - 3).join(' ').replace(/"/g, '')
-  
   var min = Math.round(time / 60) * 60
   var minute = min.toString()
 
-  calc_aggs(aggregations.overall, minute, bytes, http_status)
+  increment_fields(aggregations.overall, minute, bytes, http_status)
 
-  if (!aggregations[cname]) {
-    aggregations[cname] = {}
-  }
-  calc_aggs(aggregations[cname], minute, bytes, http_status)
+  var field_value
 
-  var aggs = match_aggs(user_agent, 'user_agent')
-  if (aggs) {
-    calc_aggs(aggs, minute, bytes, http_status)
+  switch(aggs_field) {
+    case 'cname':
+      var cs_uri_stem_split = cs_uri_stem.split('/')
+      var cname = cs_uri_stem_split[2]
+      field_value = cname
+      break
+    
+    case 'user_agent':
+      var user_agent = line.slice(14, line.length - 3).join(' ').replace(/"/g, '')
+      field_value = user_agent
+      break
+      
+    case 'c_ip':
+      var c_ip = line[2]
+      field_value = c_ip
+      break
   }
+
+  if (!aggregations[field_value]) {
+    aggregations[field_value] = {}
+  }
+
+  increment_fields(aggregations[field_value], minute, bytes, http_status)
 }
 
-function calc_aggs (aggs, minute, bytes, http_status) {
+function increment_fields (aggs, minute, bytes, http_status) {
   if (!aggs[minute]) {
     aggs[minute] = JSON.parse(JSON.stringify(aggs_skel))
   }
@@ -160,20 +135,14 @@ function calc_aggs (aggs, minute, bytes, http_status) {
   aggs[minute].bytes_sent += bytes
 }
 
-function match_aggs (field, key) {
-  var type
-  for (type in aggregations[key]) {
-    var value = aggregations[key][type]
-
-    if (field.includes(value.match)) {
-      return value.aggs
-    }
+function worker_on_close () {
+  var key
+  for (key in aggregations) {
+    finish_aggs(key, aggregations[key])
   }
-
-  return false
 }
 
-function finish_aggs (type, aggs) {
+function finish_aggs (key, aggs) {
   var minute
 
   for (minute in aggs) {
@@ -183,7 +152,7 @@ function finish_aggs (type, aggs) {
 
     metrics.total = total
     metrics.err_rate = err_rate
-    metrics.aggs_type = type
+    metrics.aggs_key = key
 
     metrics.timestamp = (new Date(minute * 1000)).toJSON()
   }

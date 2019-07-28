@@ -76,12 +76,7 @@ function transform (line) {
   var sc_status_split = sc_status.split('/')
   var http_status = sc_status_split[1]
 
-  if (bytes == '-') {
-    bytes = 0
-  }
-  else {
-    bytes = Number(bytes)
-  }
+  bytes == '-' ? bytes = 0 : bytes = Number(bytes)
 
   var cs_uri_stem_split = cs_uri_stem.split('/')
   var cname = cs_uri_stem_split[2]

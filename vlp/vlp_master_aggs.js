@@ -7,7 +7,8 @@ const workers_total = process.argv[3]
 const decompress_method = process.argv[4]
 const es_host = process.argv[5]
 const es_index = process.argv[6]
-const howmany = 2000
+const aggs_field = process.argv[7]
+const howmany = 20000
 const forking_interval = 5000
 const flushing_interval = 5000
 
@@ -29,7 +30,7 @@ var loading = false
 
 const undone_path = data_path + 'undone/'
 const done_path = data_path + 'done/'
-const worker_path = 'vlp_worker.js'
+const worker_path = 'vlp_worker_aggs.js'
 
 var forking
 var flushing
@@ -69,13 +70,13 @@ function fork_worker (file) {
 
   var undone_file = undone_path + file
    
-  const worker = fork(worker_path, [undone_file])
+  const worker = fork(worker_path, [undone_file, decompress_method, aggs_field])
 
   worker.on('message', (msg) => {
     process_msg(msg)
   })
   
-  worker.on('close', (code) => { //log('worker_exit_code', code)
+  worker.on('close', (code) => {
     log('finished processing', file)
 
     // fs.renameSync(undone_file, done_path + file)
@@ -98,14 +99,6 @@ function process_msg (msg) {
     var minute
     for (minute in aggs) {
       load(aggs[minute])
-    }
-  }
-  else if (msg.type == 'logs') {
-    var logs = msg.data
-
-    for (var i=0; i<logs.length; i++) {
-      var doc = logs[i]
-      load(doc)
     }
   }
   else {

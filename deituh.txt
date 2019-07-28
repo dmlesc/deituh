@@ -19,7 +19,10 @@ node manage_elastic/delete_indices.js esc2:9200
 node manage_elastic/put_template_vlp-logs.js esc2:9200
 node manage_elastic/put_template_vlp-aggs.js esc2:9200
 
-curl -X DELETE "esc2:9200/_template/vlp-all"
+curl -X DELETE "esc2:9200/_template/vlp-logs"
+curl -X DELETE "esc2:9200/_template/vlp-aggs"
+curl -X DELETE "esc2:9200/vlp-aggs-c_ip-0"
+
 
 node vlp_worker_all_zlib.js ~/Desktop/logs/undone/wac_2BE4_20181127_0001.log.gz esc2:9200 vlp-all-0
 
@@ -28,3 +31,15 @@ node vlp_master.js ~/Desktop/logs/ 1 zlib esc2:9200 vlp-aggs-0
 node vlp_master.js ~/Desktop/logs/ 1 pigz esc2:9200 vlp-aggs-0
 
 node vlp_master_logs.js ~/Desktop/logs/ 1 esc2:9200 vlp-logs-0
+
+node vlp_master_aggs.js /vol0/logs/ 1 zlib esc2:9200 vlp-aggs-0
+node vlp_master_aggs.js /vol0/logs/ 1 pigz esc2:9200 vlp-aggs-1
+
+node vlp_master_aggs.js /vol0/logs/ 6 zlib esc2:9200 vlp-aggs-0
+node vlp_master_aggs.js /vol0/logs/ 6 pigz esc2:9200 vlp-aggs-1
+
+
+
+node vlp_master_aggs.js /vol0/logs/ 1 pigz esc2:9200 vlp-aggs-cname-0 cname
+node vlp_master_aggs.js /vol0/logs/ 1 pigz esc2:9200 vlp-aggs-user_agent-0 user_agent
+node vlp_master_aggs.js /vol0/logs/ 1 pigz esc2:9200 vlp-aggs-c_ip-0 c_ip

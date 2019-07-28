@@ -23,7 +23,7 @@ var params = {
       },
       properties: {
         timestamp: { type: 'date', format: 'strict_date_optional_time' },
-        aggs_type: { type : 'keyword' },
+        aggs_key: { type : 'keyword' },
         '2xx': { type : 'integer' },
         '3xx': { type : 'integer' },
         '4xx': { type : 'integer' },
