@@ -6,7 +6,7 @@ services:
     image: elasticsearch:7.2.0
     environment:
       - discovery.type=single-node
-      - "ES_JAVA_OPTS=-Xms8g -Xmx8g"
+      - "ES_JAVA_OPTS=-Xms12g -Xmx12g"
     ulimits:
       nproc: 4096
       nofile:
