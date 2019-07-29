@@ -79,8 +79,8 @@ function fork_worker (file) {
   worker.on('close', (code) => {
     log('finished processing', file)
 
-    // fs.renameSync(undone_file, done_path + file)
-    // log('moved to done', file)
+    fs.renameSync(undone_file, done_path + file)
+    log('moved to done', file)
 
     workers_active--
     log('workers_active', workers_active)

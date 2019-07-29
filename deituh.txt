@@ -32,6 +32,8 @@ node vlp_master.js ~/Desktop/logs/ 1 pigz esc2:9200 vlp-aggs-0
 
 node vlp_master_logs.js ~/Desktop/logs/ 1 esc2:9200 vlp-logs-0
 
+node vlp_master_logs.js /vol0/logs/ 1 esc2:9200 vlp-logs-0
+
 node vlp_master_aggs.js /vol0/logs/ 1 zlib esc2:9200 vlp-aggs-0
 node vlp_master_aggs.js /vol0/logs/ 1 pigz esc2:9200 vlp-aggs-1
 
@@ -42,4 +44,9 @@ node vlp_master_aggs.js /vol0/logs/ 6 pigz esc2:9200 vlp-aggs-1
 
 node vlp_master_aggs.js /vol0/logs/ 1 pigz esc2:9200 vlp-aggs-cname-0 cname
 node vlp_master_aggs.js /vol0/logs/ 1 pigz esc2:9200 vlp-aggs-user_agent-0 user_agent
-node vlp_master_aggs.js /vol0/logs/ 1 pigz esc2:9200 vlp-aggs-c_ip-0 c_ip
+node --max_old_space_size=4096 vlp_master_aggs.js /vol0/logs/ 1 pigz esc2:9200 vlp-aggs-c_ip-0 c_ip
+
+node vlp_master_aggs.js /media/wd1t/work/logs/ 4 pigz esc2:9200 vlp-aggs-cname-0 cname
+node vlp_master_aggs.js /media/wd1t/work/logs/ 5 pigz esc2:9200 vlp-aggs-user_agent-0 user_agent
+
+node vlp_master_aggs.js /vol0/logs/ 5 pigz esc2:9200 vlp-aggs-cname-0 cname
