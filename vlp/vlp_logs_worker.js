@@ -86,20 +86,20 @@ function transform (line) {
     path = cs_uri_stem_split.slice(4).join('/')
   }
 
-  var message = {}
+  var doc = {}
 
-  message.timestamp = timestamp
-  message.bytes = bytes
-  message.c_ip = c_ip
-  message.cname = cname
-  message.http_status = http_status
-  message.method = method
-  message.path = path
-  message.user_agent = user_agent
+  doc.timestamp = timestamp
+  doc.bytes = bytes
+  doc.c_ip = c_ip
+  doc.cname = cname
+  doc.http_status = http_status
+  doc.method = method
+  doc.path = path
+  doc.user_agent = user_agent
 
-  // log(message)
+  // log(doc)
   
-  bulk_queue.push(JSON.stringify(message))
+  bulk_queue.push(JSON.stringify(doc))
 }
 
 function load (docs) {

@@ -46,7 +46,22 @@ node vlp_master_aggs.js /vol0/logs/ 1 pigz esc2:9200 vlp-aggs-cname-0 cname
 node vlp_master_aggs.js /vol0/logs/ 1 pigz esc2:9200 vlp-aggs-user_agent-0 user_agent
 node --max_old_space_size=4096 vlp_master_aggs.js /vol0/logs/ 1 pigz esc2:9200 vlp-aggs-c_ip-0 c_ip
 
-node vlp_master_aggs.js /media/wd1t/work/logs/ 4 pigz esc2:9200 vlp-aggs-cname-0 cname
-node vlp_master_aggs.js /media/wd1t/work/logs/ 5 pigz esc2:9200 vlp-aggs-user_agent-0 user_agent
+node vlp_master_aggs.js /media/wd1t/work/logs/ 2 pigz esc2:9200 vlp-aggs-cname-0 cname
+node vlp_master_aggs.js /media/wd1t/work/logs/ 2 pigz esc2:9200 vlp-aggs-user_agent-0 user_agent
 
 node vlp_master_aggs.js /vol0/logs/ 5 pigz esc2:9200 vlp-aggs-cname-0 cname
+
+
+
+node --max_old_space_size=4096 vlp_worker_reduce.js /vol0/logs/undone/wac_2BE4_20181127_0002.log.gz
+
+node vlp_reduce_worker.js /vol0/logs/undone/wac_2BE4_20181127_0001.log.gz /vol0/logs/reduced/
+
+node vlp_reduce_master.js /vol0/logs/ 3
+
+
+197939616
+197939615
+
+
+ocsp/baltimoreroot/

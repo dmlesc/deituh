@@ -76,7 +76,9 @@ function extract_zlib (file) {
     }
   })
   rl.on('close', () => {
-    worker_on_close()
+    log('close', file)
+
+    child.stdin.end()
   })
 }
 
