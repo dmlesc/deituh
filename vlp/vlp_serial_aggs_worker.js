@@ -34,7 +34,7 @@ function extract (file) {
     log('close', file)
     log('unique_serials', unique_serials)
 
-    fs.writeFileSync(serial_aggs_file, zlib.gzipSync(JSON.stringify(serial_aggs)))
+    load()
   })
 }
 
@@ -69,6 +69,21 @@ function transform (line) {
       serial_aggs.post.requests++
     }
   }
+}
+
+
+function load () {
+  var serial_arr = []
+
+  var key
+
+  for (key in serial_aggs) {
+    var txt = key + ' ' + serial_aggs[key].requests
+    serial_arr.push(txt)
+  }
+
+  // fs.writeFileSync(serial_aggs_file, zlib.gzipSync(JSON.stringify(serial_aggs)))
+  fs.writeFileSync(serial_aggs_file, zlib.gzipSync((serial_arr.join('\n'))))
 }
 
 
