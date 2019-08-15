@@ -11,6 +11,7 @@ const zlib = require('zlib');
 const readline = require('readline')
 
 var serial_aggs = {
+  total: { requests: 0 },
   post: { requests: 0 }
 }
 
@@ -62,10 +63,12 @@ function transform (line) {
           unique_serials++
         }
 
+        serial_aggs.total.requests++
         serial_aggs[serial]['requests']++
       }
     }
     else if (method == 'POST') {
+      serial_aggs.total.requests++
       serial_aggs.post.requests++
     }
   }
@@ -82,7 +85,6 @@ function load () {
     serial_arr.push(txt)
   }
 
-  // fs.writeFileSync(serial_aggs_file, zlib.gzipSync(JSON.stringify(serial_aggs)))
   fs.writeFileSync(serial_aggs_file, zlib.gzipSync((serial_arr.join('\n'))))
 }
 
