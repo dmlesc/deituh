@@ -67,7 +67,7 @@ node vlp_reduce_master.js /media/wd1t/work/logs/ 2 /data/reduced/
 node vlp_serial_aggs_worker.js /vol0/logs/reduced/reduced_20181126_0031.log.gz /vol0/logs/serial_aggs/
 node vlp_serial_aggs_master.js 2 /vol0/logs/reduced/ /vol0/logs/serial_aggs/
 
-node vlp_serial_aggs_master.js 2 /data/reduced/ /data/serial_aggs/
+node vlp_serial_aggs_master.js 4 /data/reduced/ /data/serial_aggs/
 
 node vlp_serial_aggs_combine.js /vol0/logs/serial_aggs/ /vol0/logs/serial_aggs_combined/
 
