@@ -4,7 +4,7 @@ const log = require('./log')
 
 const file = process.argv[2]
 const serial_aggs_path = process.argv[3]
-const serial_aggs_file = serial_aggs_path + 'serial_aggs_' + file.split('_').slice(1).join('_').replace('.gz', '.json.gz')
+const serial_aggs_file = serial_aggs_path + 'serial_aggs_' + file.split('_').slice(1).join('_').replace('log.gz', '.gz')
 
 const fs = require('fs')
 const zlib = require('zlib');
