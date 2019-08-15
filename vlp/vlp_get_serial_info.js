@@ -13,7 +13,7 @@ var serial_list = []
 var serial_info_file = 'serial_info.json.gz'
 var serial_info = {}
 
-const saving_interval = 60000
+const saving_interval = 30000
 var saving
 
 
@@ -115,13 +115,12 @@ function save_serial_info () {
 
 function more2do() {
   if (index < serial_list.length) {
-    log('serials remaining', serial_list.length - index)
-
     var serial = serial_list[index++]
     log('index', index)
+    log('serials remaining', serial_list.length - index)
 
     if (serial_info[serial]) {
-      log('\nalready got da info:', serial)
+      log('already got da info', serial)
       more2do()
     }
     else {
