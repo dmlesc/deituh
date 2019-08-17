@@ -71,16 +71,25 @@ function get_crtsh_id_info(serial, crtsh_id) {
     if (err) { console.log('err:', err) }
     else {
       const cert_td = /Certificate:.*<BR>/g
-      var cert_info = body.match(cert_td)[0].replace(/(&nbsp;){2}/g, '').split('<BR>')
+      var cert_td_match = body.match(cert_td)
 
-      var info = {
-        issuer_cn: find_name(cert_info, 'Issuer:', 'commonName'),
-        subject_cn: find_name(cert_info, 'Subject:', 'commonName'),
-        subject_on: find_name(cert_info, 'Subject:', 'organizationName')
+      var cert_info
+
+      if (cert_td_match) {
+        cert_info = body.match(cert_td)[0].replace(/(&nbsp;){2}/g, '').split('<BR>')
+
+        var info = {
+          issuer_cn: find_name(cert_info, 'Issuer:', 'commonName'),
+          subject_cn: find_name(cert_info, 'Subject:', 'commonName'),
+          subject_on: find_name(cert_info, 'Subject:', 'organizationName')
+        }
+  
+        add_serial_info(serial, info)
+        more2do()
       }
-
-      add_serial_info(serial, info)
-      more2do()
+      else {
+        log('no match, body', body)
+      }
     }
   })
 }

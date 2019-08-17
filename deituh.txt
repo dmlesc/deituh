@@ -75,3 +75,22 @@ node vlp_serial_aggs_combine.js /data/serial_aggs/ /data/serial_aggs_combined/
 
 node vlp_get_serial_info.js /vol0/logs/serial_aggs_combined/serial_aggs_20181126_0031-20181127_0030.gz
 node vlp_get_serial_info.js /data/serial_aggs_combined/serial_aggs_20181126_0031-20181127_0030.gz
+
+
+2019-08-16T23:31:05.439Z: index - 63849
+2019-08-16T23:31:05.439Z: serials remaining - 4335189
+/home/dml/deituh/vlp/vlp_get_serial_info.js:74
+      var cert_info = body.match(cert_td)[0].replace(/(&nbsp;){2}/g, '').split('<BR>')
+                                         ^
+
+TypeError: Cannot read property '0' of null
+    at Request._callback (/home/dml/deituh/vlp/vlp_get_serial_info.js:74:42)
+    at Request.self.callback (/home/dml/deituh/vlp/node_modules/request/request.js:185:22)
+    at Request.emit (events.js:203:13)
+    at Request.<anonymous> (/home/dml/deituh/vlp/node_modules/request/request.js:1161:10)
+    at Request.emit (events.js:203:13)
+    at IncomingMessage.<anonymous> (/home/dml/deituh/vlp/node_modules/request/request.js:1083:12)
+    at Object.onceWrapper (events.js:291:20)
+    at IncomingMessage.emit (events.js:208:15)
+    at endReadableNT (_stream_readable.js:1168:12)
+    at processTicksAndRejections (internal/process/task_queues.js:77:11)
