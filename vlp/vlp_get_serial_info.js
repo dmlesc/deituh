@@ -58,7 +58,7 @@ function get_crtsh_id(serial) {
         get_crtsh_id_info(serial, matches[0].split('=')[2])
       }
       else {
-        console.log('\nnot found in crt.sh db:', serial, '\n')
+        log('not found in crt.sh db', serial)
 
         var info = {
           issuer_cn: 'not found',
@@ -130,14 +130,14 @@ function find_name(cert_info, heading, name) {
 
 function add_serial_info(serial, info) {
   serial_info[serial] = info
-  console.log('added to serial_info:', serial, info)
+  console.log('added:', serial, info)
 }
 
 function save_serial_info () {
   fs.writeFile(serial_info_file, zlib.gzipSync(JSON.stringify(serial_info)), (err) => {
     if (err) { log('writeFile_err', err) }
     else {
-      log('saved serial_list', serial_info_file)
+      log('saved', serial_info_file)
     }
   })
 }
@@ -146,7 +146,7 @@ function more2do() {
   if (index < serial_list.length) {
     var serial = serial_list[index++]
     log('index', index)
-    log('serials remaining', serial_list.length - index)
+    log('remaining', serial_list.length - index)
 
     if (serial_info[serial]) {
       log('already got da info', serial)
