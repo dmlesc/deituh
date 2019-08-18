@@ -89,6 +89,9 @@ function get_crtsh_id_info(serial, crtsh_id) {
       }
       else {
         log('no match, body', body)
+        log('res', res)
+        log('retry in 5 sec', serial + ' - ' + crtsh_id)
+        setTimeout(get_crtsh_id_info, 5000, serial, crtsh_id)
       }
     }
   })
