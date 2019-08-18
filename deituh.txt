@@ -74,7 +74,7 @@ node vlp_serial_aggs_combine.js /vol0/logs/serial_aggs/ /vol0/logs/serial_aggs_c
 node vlp_serial_aggs_combine.js /data/serial_aggs/ /data/serial_aggs_combined/
 
 node vlp_get_serial_info.js /vol0/logs/serial_aggs_combined/serial_aggs_20181126_0031-20181127_0030.gz
-node vlp_get_serial_info.js /data/serial_aggs_combined/serial_aggs_20181126_0031-20181127_0030.gz
+node vlp_get_serial_info.js 2 /data/serial_aggs_combined/serial_aggs_20181126_0031-20181127_0030.gz
 
 
 2019-08-16T23:31:05.439Z: index - 63849

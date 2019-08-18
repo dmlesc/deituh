@@ -6,14 +6,15 @@ const request = require('request')
 const fs = require('fs')
 const zlib = require('zlib')
 
-const serial_aggs_file = process.argv[2]
-var index = Number(process.argv[3] || 0)
+const concurrent_req = process.argv[2]
+const serial_aggs_file = process.argv[3]
+var index = Number(process.argv[4] || 0)
 
 var serial_list = []
 var serial_info_file = 'serial_info.json.gz'
 var serial_info = {}
 
-const saving_interval = 30000
+const saving_interval = 120000
 var saving
 
 
@@ -32,7 +33,10 @@ function init() {
     }
   }
 
-  more2do()
+  for (var i=0; i<concurrent_req.length; i++) {
+    more2do()
+  }
+
   saving = setInterval(save_serial_info, saving_interval)
 }
 
@@ -41,7 +45,12 @@ function get_crtsh_id(serial) {
   var url = 'https://crt.sh/?serial=' + serial
   
   request(url, (err, res, body) => {
-    if (err) { console.log('err:', err) }
+    if (err) {
+      console.log('get_crtsh_id err:', err)
+      log('retry in 5 sec', serial)
+      setTimeout(get_crtsh_id, 5000, serial)
+
+    }
     else {
       const id_patt = /href="\?id=\d{1,}/g
       var matches = body.match(id_patt)
@@ -68,7 +77,11 @@ function get_crtsh_id_info(serial, crtsh_id) {
   var url = 'https://crt.sh/?id=' + crtsh_id
   
   request(url, (err, res, body) => {
-    if (err) { console.log('err:', err) }
+    if (err) {
+      console.log('get_crtsh_id_info err:', err)
+      log('retry in 5 sec', serial + ' - ' + crtsh_id)
+      setTimeout(get_crtsh_id_info, 5000, serial, crtsh_id)
+    }
     else {
       const cert_td = /Certificate:.*<BR>/g
       var cert_td_match = body.match(cert_td)
@@ -117,12 +130,16 @@ function find_name(cert_info, heading, name) {
 
 function add_serial_info(serial, info) {
   serial_info[serial] = info
-  console.log('added to serial_info:', serial, '\n', info)
+  console.log('added to serial_info:', serial, info)
 }
 
 function save_serial_info () {
-  fs.writeFileSync(serial_info_file, zlib.gzipSync(JSON.stringify(serial_info)))
-  log('saved serial_list', serial_info_file)
+  fs.writeFile(serial_info_file, zlib.gzipSync(JSON.stringify(serial_info)), (err) => {
+    if (err) { log('writeFile_err', err) }
+    else {
+      log('saved serial_list', serial_info_file)
+    }
+  })
 }
 
 function more2do() {
