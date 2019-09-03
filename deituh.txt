@@ -3,6 +3,36 @@
 
 // process.stdout.write(unique_serials + '\r')
 
+===============
+ elasticsearch
+===============
+
+sysctl -w vm.max_map_count=262144
+nano /etc/sysctl.conf
+  vm.max_map_count=262144
+
+docker pull elasticsearch:6.5.4
+docker run -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" elasticsearch:6.5.4
+
+curl http://docker0:9200/_cat/health
+  1548134918 05:28:38 docker-cluster green 1 1 0 0 0 0 0 0 - 100.0%
+
+curl http://docker0:9200/_cat/indices?v
+
+curl http://docker0:9200/_nodes?filter_path=**.mlockall
+  {"nodes":{"tmB-PhEGRSyg4nEqA4DEnA":{"process":{"mlockall":false}}}}
+
+
+environment:
+  - bootstrap.memory_lock=true
+
+ulimits:
+  memlock:
+    soft: -1
+    hard: -1
+
+
+
 
 git clone https://github.com/dmlesc/deituh.git
 
@@ -73,7 +103,7 @@ node vlp_serial_aggs_combine.js /vol0/logs/serial_aggs/ /vol0/logs/serial_aggs_c
 
 node vlp_serial_aggs_combine.js /data/serial_aggs/ /data/serial_aggs_combined/
 
-node vlp_get_serial_info.js /vol0/logs/serial_aggs_combined/serial_aggs_20181126_0031-20181127_0030.gz
+node vlp_get_serial_info.js 2 /vol0/logs/serial_aggs_combined/serial_aggs_20181126_0031-20181127_0030.gz
 node vlp_get_serial_info.js 2 /data/serial_aggs_combined/serial_aggs_20181126_0031-20181127_0030.gz
 
 

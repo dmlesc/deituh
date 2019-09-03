@@ -2,19 +2,19 @@
 process.on('uncaught', (err) => { console.log('\nuncaught:\n', err.stack) })
 const log = require('./log')
 
-const data_path = process.argv[2]
-const workers_total = process.argv[3]
-const reduced_path = process.argv[4]
+const workers_total = process.argv[2]
+const data_path = process.argv[3]
+const worker_path = process.argv[4]
 
-const forking_interval = 5000
+log('process.argv.length', process.argv.length)
+
+const undone_path = data_path + 'undone/'
+const done_path = data_path + 'done/'
 
 const fs = require('fs')
 const { fork } = require('child_process')
 
-const undone_path = data_path + 'undone/'
-const done_path = data_path + 'done/'
-const worker_path = 'vlp_reduce_worker.js'
-
+const forking_interval = 5000
 var forking
 var workers_active = 0
 var undone_files
@@ -44,7 +44,7 @@ function fork_worker (file) {
 
   var undone_file = undone_path + file
    
-  const worker = fork(worker_path, [undone_file, reduced_path])
+  const worker = fork(worker_path, [undone_file])
 
   worker.on('message', (msg) => {
     process_msg(msg)

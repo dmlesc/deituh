@@ -27,9 +27,7 @@ function extract (file) {
     input: fs.createReadStream(file).pipe(zlib.createGunzip()) 
   })
   rl.on('line', (line) => { 
-    if (!line.startsWith('#Fields:')) {
-      transform(line)
-    }
+    transform(line)
   })
   rl.on('close', () => {
     log('close', file)
