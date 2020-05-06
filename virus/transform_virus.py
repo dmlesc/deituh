@@ -1,5 +1,5 @@
 import os
-import csv
+import pandas as pd
 
 raw_path = './csv/raw/'
 raw_csvs = os.listdir(raw_path)
@@ -8,22 +8,24 @@ print(raw_csvs)
 clean_path = './csv/clean/'
 
 for raw_csv in raw_csvs:
-  with open(raw_path + raw_csv, newline='') as csv_file:
-    csv_reader = csv.reader(csv_file, delimiter=',')
+  if 'country' in raw_csv:
+    index_col = 'country'
+  else:
+    index_col = 'state'
 
-    for row in csv_reader:
-      # print(row)
-      
-      index = 0
-      for value in row:
-        if not value:
-          row[index] = '0'
-        else:
-          row[index] = value.replace(',', '')
-        index += 1
-      
-      # print(row)
-      # print('\n')
-    
-    clean_csv = clean_path + raw_csv.replace(' ', '')
-    print(clean_csv)
+  df = pd.read_csv(raw_path + raw_csv, delimiter=',', index_col=index_col)
+
+  for column in df:
+    if df[column].dtypes == 'object':
+      df[column] = df[column].str.replace(",","").astype(float)
+
+  df = df.fillna(0)
+
+  for column in df:
+    if df[column].dtypes == 'float64':
+      df[column] = df[column].astype('int32')
+
+  df.to_csv(clean_path + raw_csv.replace(' ', ''))
+
+  print(df.dtypes)
+  print(df)
