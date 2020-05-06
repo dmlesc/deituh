@@ -2,10 +2,10 @@ import os
 import pandas as pd
 
 raw_path = './csv/raw/'
+clean_path = './csv/clean/'
+
 raw_csvs = os.listdir(raw_path)
 print(raw_csvs)
-
-clean_path = './csv/clean/'
 
 for raw_csv in raw_csvs:
   if 'country' in raw_csv:
