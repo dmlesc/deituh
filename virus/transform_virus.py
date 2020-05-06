@@ -17,7 +17,7 @@ for raw_csv in raw_csvs:
 
   for column in df:
     if df[column].dtypes == 'object':
-      df[column] = df[column].str.replace(",","").astype(float)
+      df[column] = df[column].str.replace(',','').astype(float)
 
   df = df.fillna(0)
 
