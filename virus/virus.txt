@@ -9,3 +9,11 @@ conda install pandas
 
 apt install python3-pip
 pip3 install pandas
+
+
+sudo -H pip3 install numpy
+sudo apt-get install python3-pandas
+sudo -H pip3 install --upgrade beautifulsoup4
+sudo -H pip3 install --upgrade html5lib
+sudo -H pip3 install --upgrade scipy
+sudo -H pip3 install scikit-learn
